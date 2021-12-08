@@ -39,3 +39,15 @@ export const Post = (type, data, func) => {
     }
   });
 };
+
+export const Delete = (type, data) => {
+  axios
+    .delete(`${REACT_APP_API_URL}${type}`, {
+      headers: { Authorization: data },
+    })
+    .then((response) => {
+      if (response.data.status == "success") {
+        console.log("Delete success");
+      }
+    });
+};
