@@ -1,7 +1,16 @@
-import { NativeBaseProvider, Stack, Link } from "native-base";
-import { Delete } from "../../utils";
+import { useContext, useEffect } from "react";
+import { NativeBaseProvider, Stack, Link, Text, Divider } from "native-base";
 
-export const Home = ({ token, setToken }) => {
+import { Get, Delete } from "../../utils";
+import { MainContext } from "../../utils/MainContext";
+
+export const Home = ({ setToken }) => {
+  const { token, user, friends, updateContext } = useContext(MainContext);
+
+  useEffect(() => {
+    Get("home", token, updateContext);
+  }, []);
+
   const signOut = () => {
     setToken("");
     localStorage.removeItem("the-book-of");
@@ -11,7 +20,26 @@ export const Home = ({ token, setToken }) => {
   return (
     <NativeBaseProvider>
       <Stack space={5}>
-        <Link onPress={() => signOut()}>Sign out</Link>
+        <Stack>
+          <Link onPress={() => signOut()}>Sign out</Link>
+        </Stack>
+        <Text>User</Text>
+        <Stack>{user.first_name}</Stack>
+
+        <Divider my="2" />
+
+        <Text>Friends</Text>
+        <Stack>
+          {Object.values(friends).map((friend) => {
+            return (
+              <>
+                <Text>
+                  {friend.first_name} {""} {friend.last_name}
+                </Text>
+              </>
+            );
+          })}
+        </Stack>
       </Stack>
     </NativeBaseProvider>
   );
