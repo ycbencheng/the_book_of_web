@@ -11,7 +11,6 @@ export const queryParams = (fields) => {
 export const Get = (type, data, func) => {
   axios.get(`${REACT_APP_API_URL}${type}`, { headers: { Authorization: data } }).then((response) => {
     if (response.data.status == "success") {
-      console.log("response.data", response.data);
       return func(response.data);
     }
   });
