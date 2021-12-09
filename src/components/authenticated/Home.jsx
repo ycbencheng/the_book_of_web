@@ -7,7 +7,7 @@ import { MainContext } from "../../utils/MainContext";
 export const AddFriends = ({ email, setEmailState, showModal, setShowModal }) => {
   const { token } = useContext(MainContext);
 
-  const sendInvite = () => {
+  const addFriends = () => {
     setShowModal(false);
 
     Post("add_friends", { userToken: token, email: email }, () => {});
@@ -42,7 +42,7 @@ export const AddFriends = ({ email, setEmailState, showModal, setShowModal }) =>
             </Button>
             <Button
               onPress={() => {
-                sendInvite();
+                addFriends();
               }}
             >
               Send
@@ -68,6 +68,10 @@ export const Home = ({ setToken }) => {
     setToken("");
     localStorage.removeItem("the-book-of");
     Delete("users/sign_out", token);
+  };
+
+  const deleteFriends = (friend) => {
+    Delete("delete_friends", { userToken: token, id: friend.id });
   };
 
   return (
@@ -97,6 +101,7 @@ export const Home = ({ setToken }) => {
                 <Text>
                   {friend.first_name} {""} {friend.last_name}
                 </Text>
+                <Link onPress={() => deleteFriends(friend)}>Delete</Link>
               </>
             );
           })}
