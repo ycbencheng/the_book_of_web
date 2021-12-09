@@ -1,5 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { NativeBaseProvider, TextArea, Pressable, Button, Text } from "native-base";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 import { Get, Post, Put, Delete } from "../../utils";
 import { MainContext } from "../../utils/MainContext";
@@ -82,6 +84,7 @@ export const NewEntry = ({ token, entries, setEntries }) => {
 export const Entry = ({ user }) => {
   const { token } = useContext(MainContext);
   const [entries, setEntries] = useState([]);
+  const [calendarValue, onChangeCalendar] = useState(new Date());
 
   useEffect(() => {
     Get("entries", { token }, (data) => {
@@ -91,6 +94,17 @@ export const Entry = ({ user }) => {
 
   return (
     <NativeBaseProvider>
+      <Calendar
+        onChange={onChangeCalendar}
+        value={calendarValue}
+        calendarType={"US"}
+        minDate={new Date(2021, 1, 0)}
+        maxDate={new Date(2030, 12, 0)}
+        minDetail={"decade"}
+        prev2Label={null}
+        next2Label={null}
+      />
+
       {entries[0]?.body ? (
         <EditEntry token={token} entries={entries} setEntries={setEntries} />
       ) : (
