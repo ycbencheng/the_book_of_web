@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
-import { NativeBaseProvider, TextArea, Pressable, Button, Text } from "native-base";
-import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
+import { NativeBaseProvider, TextArea, Pressable, Button, Text, Select } from "native-base";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import { Get, Post, Put, Delete } from "../../utils";
 import { MainContext } from "../../utils/MainContext";
@@ -84,7 +84,17 @@ export const NewEntry = ({ token, entries, setEntries }) => {
 export const Entry = ({ user }) => {
   const { token } = useContext(MainContext);
   const [entries, setEntries] = useState([]);
-  const [calendarValue, onChangeCalendar] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleChange = (e) => {
+    setIsOpen(!isOpen);
+    setStartDate(e);
+  };
+
+  const handleClick = () => {
+    setIsOpen(!isOpen);
+  };
 
   useEffect(() => {
     Get("entries", { token }, (data) => {
@@ -94,16 +104,11 @@ export const Entry = ({ user }) => {
 
   return (
     <NativeBaseProvider>
-      <Calendar
-        onChange={onChangeCalendar}
-        value={calendarValue}
-        calendarType={"US"}
-        minDate={new Date(2021, 1, 0)}
-        maxDate={new Date(2030, 12, 0)}
-        minDetail={"decade"}
-        prev2Label={null}
-        next2Label={null}
-      />
+      <Button className="example-custom-input" onPress={handleClick}>
+        {new Date(startDate).toLocaleDateString()}
+      </Button>
+
+      {isOpen && <DatePicker selected={startDate} onChange={handleChange} inline />}
 
       {entries[0]?.body ? (
         <EditEntry token={token} entries={entries} setEntries={setEntries} />
