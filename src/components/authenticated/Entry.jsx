@@ -81,7 +81,7 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   );
 };
 
-export const Entry = ({ user }) => {
+export const Entry = () => {
   const { token } = useContext(MainContext);
   const [entries, setEntries] = useState([]);
   const [startDate, setStartDate] = useState(new Date());

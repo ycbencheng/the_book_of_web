@@ -62,7 +62,7 @@ export const Home = ({ setToken }) => {
   const { token, user, friends, updateContext } = useContext(MainContext);
 
   useEffect(() => {
-    Get("home", { token }, updateContext);
+    Get("friends", { token }, updateContext);
   }, []);
 
   const signOut = () => {
@@ -80,10 +80,6 @@ export const Home = ({ setToken }) => {
       <Stack space={5}>
         <Stack>
           <Link onPress={() => signOut()}>Sign out</Link>
-        </Stack>
-        <Text>User</Text>
-        <Stack>
-          <Redirect to={"entry"}>{user.first_name}</Redirect>
         </Stack>
 
         <Divider my="2" />
