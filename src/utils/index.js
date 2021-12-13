@@ -9,33 +9,45 @@ export const queryParams = (fields) => {
 };
 
 export const Get = (type, data, func) => {
-  axios.get(`${REACT_APP_API_URL}${type}`, { headers: { Authorization: data } }).then((response) => {
-    if (response.data.status == "success") {
+  const { token, ...fields } = data;
+
+  axios.get(`${REACT_APP_API_URL}${type}`, { headers: { Authorization: token }, fields }).then((response) => {
+    if (response.data.status === "success") {
       return func(response.data);
     }
   });
 };
 
 export const Post = (type, data, func) => {
-  const { userToken, ...fields } = data;
+  const { token, ...fields } = data;
 
-  axios.post(`${REACT_APP_API_URL}${type}`, fields, { headers: { Authorization: userToken } }).then((response) => {
-    if (response.data.status == "success") {
+  axios.post(`${REACT_APP_API_URL}${type}`, fields, { headers: { Authorization: token } }).then((response) => {
+    if (response.data.status === "success") {
+      return func(response.data);
+    }
+  });
+};
+
+export const Put = (type, data, func) => {
+  const { token, ...fields } = data;
+
+  axios.put(`${REACT_APP_API_URL}${type}`, fields, { headers: { Authorization: token } }).then((response) => {
+    if (response.data.status === "success") {
       return func(response.data);
     }
   });
 };
 
 export const Delete = (type, data) => {
-  const { userToken, ...fields } = data;
+  const { token, ...fields } = data;
 
   axios
     .delete(`${REACT_APP_API_URL}${type}`, {
-      headers: { Authorization: userToken },
+      headers: { Authorization: token },
       data: fields,
     })
     .then((response) => {
-      if (response.data.status == "success") {
+      if (response.data.status === "success") {
         console.log("Delete success");
       }
     });

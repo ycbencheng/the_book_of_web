@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { NativeBaseProvider } from "native-base";
 import "./App.css";
 
 import { Home } from "./components/authenticated/Home";
+import { Entry } from "./components/authenticated/Entry";
 import { Authentication } from "./components/Authentication";
 import { MainContext } from "./utils/MainContext";
 
@@ -22,16 +22,11 @@ function App() {
   };
 
   const updateContext = (data) => {
-    const { user, friends } = data;
-    setContextState({ ...contextState, user: user, friends: friends });
+    setContextState({ ...contextState, ...data });
   };
 
   if (!token || token.length < 0) {
-    return (
-      <NativeBaseProvider>
-        <Authentication setJWT={setJWT} />
-      </NativeBaseProvider>
-    );
+    return <Authentication setJWT={setJWT} />;
   }
 
   return (
@@ -39,6 +34,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home setToken={setToken} />} exact />
+          <Route path="/entry" element={<Entry />} exact />
         </Routes>
       </Router>
     </MainContext.Provider>

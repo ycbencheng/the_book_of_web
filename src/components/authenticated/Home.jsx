@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Link as Redirect } from "react-router-dom";
 import { NativeBaseProvider, Stack, Link, Text, Divider, Button, Modal, FormControl, Input } from "native-base";
 
 import { Get, Post, Delete } from "../../utils";
@@ -10,7 +11,7 @@ export const AddFriends = ({ email, setEmailState, showModal, setShowModal }) =>
   const addFriends = () => {
     setShowModal(false);
 
-    Post("add_friends", { userToken: token, email: email }, () => {});
+    Post("add_friends", { token: token, email: email }, () => {});
   };
 
   return (
@@ -61,7 +62,7 @@ export const Home = ({ setToken }) => {
   const { token, user, friends, updateContext } = useContext(MainContext);
 
   useEffect(() => {
-    Get("home", token, updateContext);
+    Get("friends", { token }, updateContext);
   }, []);
 
   const signOut = () => {
@@ -71,7 +72,7 @@ export const Home = ({ setToken }) => {
   };
 
   const deleteFriends = (friend) => {
-    Delete("delete_friends", { userToken: token, id: friend.id });
+    Delete("delete_friends", { token: token, id: friend.id });
   };
 
   return (
@@ -80,8 +81,6 @@ export const Home = ({ setToken }) => {
         <Stack>
           <Link onPress={() => signOut()}>Sign out</Link>
         </Stack>
-        <Text>User</Text>
-        <Stack>{user.first_name}</Stack>
 
         <Divider my="2" />
 
