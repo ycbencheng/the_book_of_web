@@ -35,9 +35,7 @@ export const EditEntry = ({ token, entries, setEntries }) => {
       <Pressable h={100} borderWidth={1}>
         <TextArea
           h={100}
-          // Pass in the right id base on the calendar click
           value={entries[0]?.body}
-          // Pass in the right id base on the calendar click
           onChangeText={(text) => updateEntry(entries[0]?.id, text)}
           isReadOnly={isReadOnly}
         />
@@ -58,10 +56,10 @@ export const EditEntry = ({ token, entries, setEntries }) => {
 
 export const NewEntry = ({ token, entries, setEntries }) => {
   const [isReadOnly, setIsReadOnly] = useState(true);
-  const [newEntry, setNewEntry] = useState("");
+  const [entry, setEntry] = useState("");
 
-  const updateEntry = (data) => {
-    setNewEntry("");
+  const postEntry = (data) => {
+    setEntry("");
     setEntries(data.entries);
   };
 
@@ -71,13 +69,13 @@ export const NewEntry = ({ token, entries, setEntries }) => {
         <TextArea
           h={100}
           placeholder={`What's on your mind today?`}
-          value={newEntry}
-          onChangeText={(text) => setNewEntry(text)}
+          value={entry}
+          onChangeText={(text) => setEntry(text)}
           isReadOnly={isReadOnly}
         />
       </Pressable>
 
-      <Button onPress={() => Post("create_entry", { token, body: newEntry }, updateEntry)}>Post</Button>
+      <Button onPress={() => Post("create_entry", { token, body: entry }, postEntry)}>Post</Button>
     </>
   );
 };
@@ -89,18 +87,32 @@ export const ShowEntry = ({ startDate, token, entries, setEntries }) => {
     day: "2-digit",
   });
 
+  const todayDate = new Date().toLocaleDateString("US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
   const entry = entries.filter((entry) => {
     return entry.created_at === convertedStartDate;
   });
 
-  return (
-    <TextArea
-      h={100}
-      placeholder={`What's on your mind today?`}
-      value={entry.length > 0 ? entry[0]?.body : `You didn't record anything on ${convertedStartDate}.`}
-      isReadOnly={true}
-    />
-  );
+  if (convertedStartDate === todayDate) {
+    if (entry.length > 0) {
+      return <EditEntry token={token} entries={entries} setEntries={setEntries} />;
+    } else {
+      return <NewEntry token={token} entries={entries} setEntries={setEntries} />;
+    }
+  } else {
+    return (
+      <TextArea
+        h={100}
+        placeholder={`What's on your mind today?`}
+        value={entry.length > 0 ? entry[0]?.body : `You didn't record anything on ${convertedStartDate}.`}
+        isReadOnly={true}
+      />
+    );
+  }
 };
 
 export const ShowCalendar = ({ startDate, setStartDate }) => {
@@ -120,6 +132,7 @@ export const ShowCalendar = ({ startDate, setStartDate }) => {
       <Button className="example-custom-input" onPress={handleClick}>
         {new Date(startDate).toLocaleDateString()}
       </Button>
+
       {isOpen && <DatePicker selected={startDate} onChange={handleChange} inline />}
     </>
   );
