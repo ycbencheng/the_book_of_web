@@ -42,6 +42,7 @@ export const EditEntry = ({ token, entries, setEntries }) => {
           isReadOnly={isReadOnly}
         />
       </Pressable>
+
       {isReadOnly ? (
         <Button onPress={() => setIsReadOnly(false)}>Edit</Button>
       ) : (
@@ -81,20 +82,53 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   );
 };
 
-export const Entry = () => {
-  const { token } = useContext(MainContext);
-  const [entries, setEntries] = useState([]);
-  const [startDate, setStartDate] = useState(new Date());
+export const ShowEntry = ({ startDate, token, entries, setEntries }) => {
+  const convertedStartDate = new Date(startDate).toLocaleDateString("US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const entry = entries.filter((entry) => {
+    return entry.created_at === convertedStartDate;
+  });
+
+  return (
+    <TextArea
+      h={100}
+      placeholder={`What's on your mind today?`}
+      value={entry.length > 0 ? entry[0]?.body : `You didn't record anything on ${convertedStartDate}.`}
+      isReadOnly={true}
+    />
+  );
+};
+
+export const ShowCalendar = ({ startDate, setStartDate }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (e) => {
-    setIsOpen(!isOpen);
+    handleClick();
     setStartDate(e);
   };
 
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
+
+  return (
+    <>
+      <Button className="example-custom-input" onPress={handleClick}>
+        {new Date(startDate).toLocaleDateString()}
+      </Button>
+      {isOpen && <DatePicker selected={startDate} onChange={handleChange} inline />}
+    </>
+  );
+};
+
+export const Entry = () => {
+  const { token } = useContext(MainContext);
+  const [entries, setEntries] = useState([]);
+  const [startDate, setStartDate] = useState(new Date());
 
   useEffect(() => {
     Get("entries", { token }, (data) => {
@@ -104,17 +138,8 @@ export const Entry = () => {
 
   return (
     <NativeBaseProvider>
-      <Button className="example-custom-input" onPress={handleClick}>
-        {new Date(startDate).toLocaleDateString()}
-      </Button>
-
-      {isOpen && <DatePicker selected={startDate} onChange={handleChange} inline />}
-
-      {entries[0]?.body ? (
-        <EditEntry token={token} entries={entries} setEntries={setEntries} />
-      ) : (
-        <NewEntry token={token} entries={entries} setEntries={setEntries} />
-      )}
+      <ShowCalendar startDate={startDate} setStartDate={setStartDate} />
+      <ShowEntry startDate={startDate} token={token} entries={entries} setEntries={setEntries} />
     </NativeBaseProvider>
   );
 };
