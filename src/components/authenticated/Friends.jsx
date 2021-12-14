@@ -1,12 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import { Link as Redirect } from "react-router-dom";
-import { NativeBaseProvider, Stack, Link, Text, Divider, Button, Modal, FormControl, Input } from "native-base";
+import { useContext, useState } from "react";
+import { NativeBaseProvider, Stack, Link, Text, Button, Modal, FormControl, Input } from "native-base";
 
-import { Get, Post, Delete } from "../../utils";
+import { UserBar } from "./UserBar";
+
+import { Post, Delete } from "../../utils";
 import { MainContext } from "../../utils/MainContext";
 
-export const AddFriends = ({ email, setEmailState, showModal, setShowModal }) => {
+export const AddFriends = ({ showModal, setShowModal }) => {
   const { token } = useContext(MainContext);
+  const [email, setEmailState] = useState("");
 
   const addFriends = () => {
     setShowModal(false);
@@ -55,21 +57,10 @@ export const AddFriends = ({ email, setEmailState, showModal, setShowModal }) =>
   );
 };
 
-export const Home = ({ setToken }) => {
+export const Friends = () => {
   const [showModal, setShowModal] = useState(false);
-  const [email, setEmailState] = useState("");
 
-  const { token, user, friends, updateContext } = useContext(MainContext);
-
-  useEffect(() => {
-    Get("friends", { token }, updateContext);
-  }, []);
-
-  const signOut = () => {
-    setToken("");
-    localStorage.removeItem("the-book-of");
-    Delete("users/sign_out", token);
-  };
+  const { token, friends, user } = useContext(MainContext);
 
   const deleteFriends = (friend) => {
     Delete("delete_friends", { token: token, id: friend.id });
@@ -77,13 +68,9 @@ export const Home = ({ setToken }) => {
 
   return (
     <NativeBaseProvider>
+      <UserBar user={user} />
+
       <Stack space={5}>
-        <Stack>
-          <Link onPress={() => signOut()}>Sign out</Link>
-        </Stack>
-
-        <Divider my="2" />
-
         <Text>Friends</Text>
         <Button
           onPress={() => {
@@ -92,14 +79,14 @@ export const Home = ({ setToken }) => {
         >
           Add
         </Button>
-        <AddFriends showModal={showModal} setShowModal={setShowModal} email={email} setEmailState={setEmailState} />
+        <AddFriends showModal={showModal} setShowModal={setShowModal} />
+
         <Stack>
           {Object.values(friends).map((friend) => {
             return (
               <>
-                <Text>
-                  {friend.first_name} {""} {friend.last_name}
-                </Text>
+                <UserBar user={friend} />
+
                 <Link onPress={() => deleteFriends(friend)}>Delete</Link>
               </>
             );

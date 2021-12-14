@@ -1,7 +1,10 @@
 import { useState, useContext, useEffect } from "react";
-import { NativeBaseProvider, TextArea, Pressable, Button, Text, Select } from "native-base";
+import { NativeBaseProvider, TextArea, Pressable, Button } from "native-base";
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
+import { UserBar } from "./UserBar";
 
 import { Get, Post, Put, Delete } from "../../utils";
 import { MainContext } from "../../utils/MainContext";
@@ -59,7 +62,6 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   const [entry, setEntry] = useState("");
 
   const postEntry = (data) => {
-    setEntry("");
     setEntries(data.entries);
   };
 
@@ -80,7 +82,16 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   );
 };
 
-export const ShowEntry = ({ startDate, token, entries, setEntries }) => {
+export const ShowEntry = ({ user_id, startDate }) => {
+  const { token, user } = useContext(MainContext);
+  const [entries, setEntries] = useState([]);
+
+  useEffect(() => {
+    Get("entries", { token, user_id }, (data) => {
+      setEntries(data.entries);
+    });
+  }, []);
+
   const convertedStartDate = new Date(startDate).toLocaleDateString("US", {
     year: "numeric",
     month: "2-digit",
@@ -97,21 +108,31 @@ export const ShowEntry = ({ startDate, token, entries, setEntries }) => {
     return entry.created_at === convertedStartDate;
   });
 
-  if (convertedStartDate === todayDate) {
-    if (entry.length > 0) {
-      return <EditEntry token={token} entries={entries} setEntries={setEntries} />;
-    } else {
-      return <NewEntry token={token} entries={entries} setEntries={setEntries} />;
-    }
-  } else {
+  if (user_id != user.id) {
     return (
       <TextArea
         h={100}
-        placeholder={`What's on your mind today?`}
-        value={entry.length > 0 ? entry[0]?.body : `You didn't record anything on ${convertedStartDate}.`}
+        value={entry.length > 0 ? entry[0]?.body : `No record for ${convertedStartDate}.`}
         isReadOnly={true}
       />
     );
+  } else {
+    if (convertedStartDate === todayDate) {
+      if (entry.length > 0) {
+        return <EditEntry token={token} entries={entries} setEntries={setEntries} />;
+      } else {
+        return <NewEntry token={token} entries={entries} setEntries={setEntries} />;
+      }
+    } else {
+      return (
+        <TextArea
+          h={100}
+          placeholder={`What's on your mind today?`}
+          value={entry.length > 0 ? entry[0]?.body : `You didn't record anything on ${convertedStartDate}.`}
+          isReadOnly={true}
+        />
+      );
+    }
   }
 };
 
@@ -139,20 +160,14 @@ export const ShowCalendar = ({ startDate, setStartDate }) => {
 };
 
 export const Entry = () => {
-  const { token } = useContext(MainContext);
-  const [entries, setEntries] = useState([]);
   const [startDate, setStartDate] = useState(new Date());
-
-  useEffect(() => {
-    Get("entries", { token }, (data) => {
-      setEntries(data.entries);
-    });
-  }, []);
+  const queryParams = new URLSearchParams(window.location.search);
+  const user_id = queryParams.get("user_id");
 
   return (
     <NativeBaseProvider>
       <ShowCalendar startDate={startDate} setStartDate={setStartDate} />
-      <ShowEntry startDate={startDate} token={token} entries={entries} setEntries={setEntries} />
+      <ShowEntry user_id={user_id} startDate={startDate} />
     </NativeBaseProvider>
   );
 };
