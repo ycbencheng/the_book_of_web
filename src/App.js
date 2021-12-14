@@ -18,8 +18,6 @@ function App() {
   const [token, setToken] = useState("");
   const [user, setUser] = useState({});
   const [friends, setFriends] = useState([]);
-  const [entries, setEntries] = useState([]);
-  const [entryUser, setEntryUser] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem("the-book-of");
@@ -29,13 +27,11 @@ function App() {
       .all([
         axios.get(`${REACT_APP_API_URL}user`, { headers: { Authorization: token } }),
         axios.get(`${REACT_APP_API_URL}friends`, { headers: { Authorization: token } }),
-        axios.get(`${REACT_APP_API_URL}entries`, { headers: { Authorization: token } }),
       ])
       .then(
         axios.spread((user, friends, entries) => {
           setUser(user.data.user);
           setFriends(friends.data.friends);
-          setEntries(entries.data.entries);
         })
       );
   }, []);
@@ -59,7 +55,7 @@ function App() {
   };
 
   return (
-    <MainContext.Provider value={{ token, user, friends, entries, entryUser, setEntryUser }}>
+    <MainContext.Provider value={{ token, user, friends }}>
       <NativeBaseProvider>
         <Link onPress={() => signOut()}>Sign out</Link>
       </NativeBaseProvider>

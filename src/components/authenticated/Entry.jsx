@@ -62,7 +62,7 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   const [entry, setEntry] = useState("");
 
   const postEntry = (data) => {
-    setEntries(data.entries);
+    setEntries(data.entries.entries);
   };
 
   return (
@@ -82,13 +82,18 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   );
 };
 
-export const ShowEntry = ({ user_id, startDate }) => {
+export const ShowEntry = ({ startDate, setUser }) => {
   const { token, user } = useContext(MainContext);
   const [entries, setEntries] = useState([]);
+
+  const queryParams = new URLSearchParams(window.location.search);
+  const user_id = queryParams.get("user_id");
 
   useEffect(() => {
     Get("entries", { token, user_id }, (data) => {
       setEntries(data.entries);
+
+      setUser(data.user);
     });
   }, []);
 
@@ -161,13 +166,13 @@ export const ShowCalendar = ({ startDate, setStartDate }) => {
 
 export const Entry = () => {
   const [startDate, setStartDate] = useState(new Date());
-  const queryParams = new URLSearchParams(window.location.search);
-  const user_id = queryParams.get("user_id");
+  const [user, setUser] = useState({});
 
   return (
     <NativeBaseProvider>
+      <UserBar user={user} />
       <ShowCalendar startDate={startDate} setStartDate={setStartDate} />
-      <ShowEntry user_id={user_id} startDate={startDate} />
+      <ShowEntry startDate={startDate} setUser={setUser} />
     </NativeBaseProvider>
   );
 };

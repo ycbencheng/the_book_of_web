@@ -60,7 +60,7 @@ export const AddFriends = ({ showModal, setShowModal }) => {
 export const Friends = () => {
   const [showModal, setShowModal] = useState(false);
 
-  const { token, friends, user } = useContext(MainContext);
+  const { token, user, friends } = useContext(MainContext);
 
   const deleteFriends = (friend) => {
     Delete("delete_friends", { token: token, id: friend.id });
