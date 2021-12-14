@@ -1,18 +1,39 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { NativeBaseProvider, Link } from "native-base";
 import "./App.css";
 
-import { Home } from "./components/authenticated/Home";
-import { Entry } from "./components/authenticated/Entry";
 import { Authentication } from "./components/Authentication";
+
+import { Friends } from "./components/authenticated/Friends";
+import { Entry } from "./components/authenticated/Entry";
+
+import { Delete } from "./utils";
+import Route from "./utils/Route";
 import { MainContext } from "./utils/MainContext";
+
+const { REACT_APP_API_URL } = process.env;
 
 function App() {
   const [token, setToken] = useState("");
-  const [contextState, setContextState] = useState({ user: {}, friends: {} });
+  const [user, setUser] = useState({});
+  const [friends, setFriends] = useState([]);
 
   useEffect(() => {
-    setToken(localStorage.getItem("the-book-of"));
+    const token = localStorage.getItem("the-book-of");
+    setToken(token);
+
+    axios
+      .all([
+        axios.get(`${REACT_APP_API_URL}user`, { headers: { Authorization: token } }),
+        axios.get(`${REACT_APP_API_URL}friends`, { headers: { Authorization: token } }),
+      ])
+      .then(
+        axios.spread((user, friends, entries) => {
+          setUser(user.data.user);
+          setFriends(friends.data.friends);
+        })
+      );
   }, []);
 
   const setJWT = (data) => {
@@ -21,22 +42,31 @@ function App() {
     localStorage.setItem("the-book-of", data.token);
   };
 
-  const updateContext = (data) => {
-    setContextState({ ...contextState, ...data });
-  };
-
   if (!token || token.length < 0) {
     return <Authentication setJWT={setJWT} />;
   }
 
+  const signOut = () => {
+    setToken("");
+
+    localStorage.removeItem("the-book-of");
+
+    Delete("users/sign_out", token);
+  };
+
   return (
-    <MainContext.Provider value={{ token, ...contextState, updateContext }}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home setToken={setToken} />} exact />
-          <Route path="/entry" element={<Entry />} exact />
-        </Routes>
-      </Router>
+    <MainContext.Provider value={{ token, user, friends }}>
+      <NativeBaseProvider>
+        <Link onPress={() => signOut()}>Sign out</Link>
+      </NativeBaseProvider>
+
+      <Route path="/">
+        <Friends />
+      </Route>
+
+      <Route path="/entry">
+        <Entry />
+      </Route>
     </MainContext.Provider>
   );
 }

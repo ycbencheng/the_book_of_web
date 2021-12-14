@@ -11,11 +11,16 @@ export const queryParams = (fields) => {
 export const Get = (type, data, func) => {
   const { token, ...fields } = data;
 
-  axios.get(`${REACT_APP_API_URL}${type}`, { headers: { Authorization: token }, fields }).then((response) => {
-    if (response.data.status === "success") {
-      return func(response.data);
-    }
-  });
+  axios
+    .get(`${REACT_APP_API_URL}${type}`, {
+      headers: { Authorization: token },
+      params: fields,
+    })
+    .then((response) => {
+      if (response.data.status === "success") {
+        return func(response.data);
+      }
+    });
 };
 
 export const Post = (type, data, func) => {
