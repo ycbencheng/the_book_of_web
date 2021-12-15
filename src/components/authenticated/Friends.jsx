@@ -57,18 +57,24 @@ export const AddFriends = ({ showModal, setShowModal }) => {
   );
 };
 
-export const Friends = () => {
+export const Friends = ({ token, user, friends, showEntry, setShowEntry, setViewUser }) => {
   const [showModal, setShowModal] = useState(false);
-
-  const { token, user, friends } = useContext(MainContext);
 
   const deleteFriends = (friend) => {
     Delete("delete_friends", { token: token, id: friend.id });
   };
 
+  const setEntry = (friend) => {
+    setShowEntry(true);
+
+    setViewUser(friend);
+  };
+
   return (
     <NativeBaseProvider>
-      <UserBar user={user} />
+      <Button h={100} borderWidth={1} onPress={() => setEntry(user)}>
+        <UserBar user={user} />
+      </Button>
 
       <Stack space={5}>
         <Text>Friends</Text>
@@ -85,7 +91,9 @@ export const Friends = () => {
           {Object.values(friends).map((friend) => {
             return (
               <>
-                <UserBar user={friend} />
+                <Button h={100} borderWidth={1} onPress={() => setEntry(friend)}>
+                  <UserBar user={friend} />
+                </Button>
 
                 <Link onPress={() => deleteFriends(friend)}>Delete</Link>
               </>

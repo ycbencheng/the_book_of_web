@@ -5,14 +5,31 @@ import "./App.css";
 
 import { Authentication } from "./components/Authentication";
 
+import { TopBar } from "./components/authenticated/TopBar";
 import { Friends } from "./components/authenticated/Friends";
 import { Entry } from "./components/authenticated/Entry";
 
-import { Delete } from "./utils";
-import Route from "./utils/Route";
-import { MainContext } from "./utils/MainContext";
-
 const { REACT_APP_API_URL } = process.env;
+
+export const ShowComponent = ({ token, user, friends }) => {
+  const [showEntry, setShowEntry] = useState(false);
+  const [viewUser, setViewUser] = useState({});
+
+  if (showEntry) {
+    return <Entry token={token} user={user} viewUser={viewUser} setShowEntry={setShowEntry} />;
+  } else {
+    return (
+      <Friends
+        token={token}
+        user={user}
+        friends={friends}
+        showEntry={showEntry}
+        setShowEntry={setShowEntry}
+        setViewUser={setViewUser}
+      />
+    );
+  }
+};
 
 function App() {
   const [token, setToken] = useState("");
@@ -46,28 +63,11 @@ function App() {
     return <Authentication setJWT={setJWT} />;
   }
 
-  const signOut = () => {
-    setToken("");
-
-    localStorage.removeItem("the-book-of");
-
-    Delete("users/sign_out", token);
-  };
-
   return (
-    <MainContext.Provider value={{ token, user, friends }}>
-      <NativeBaseProvider>
-        <Link onPress={() => signOut()}>Sign out</Link>
-      </NativeBaseProvider>
-
-      <Route path="/">
-        <Friends />
-      </Route>
-
-      <Route path="/entry">
-        <Entry />
-      </Route>
-    </MainContext.Provider>
+    <NativeBaseProvider>
+      <TopBar />
+      <ShowComponent token={token} user={user} friends={friends} />
+    </NativeBaseProvider>
   );
 }
 
