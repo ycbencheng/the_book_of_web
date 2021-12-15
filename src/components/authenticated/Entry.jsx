@@ -1,5 +1,5 @@
-import { useState, useContext, useEffect } from "react";
-import { NativeBaseProvider, TextArea, Pressable, Button } from "native-base";
+import { useState, useEffect } from "react";
+import { TextArea, Pressable, Button } from "native-base";
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,7 +7,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { UserBar } from "./UserBar";
 
 import { Get, Post, Put, Delete } from "../../utils";
-import { MainContext } from "../../utils/MainContext";
 
 export const EditEntry = ({ token, entries, setEntries }) => {
   const [isReadOnly, setIsReadOnly] = useState(true);
@@ -62,7 +61,7 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   const [entry, setEntry] = useState("");
 
   const postEntry = (data) => {
-    setEntries(data.entries.entries);
+    setEntries(data.entries);
   };
 
   return (
@@ -82,18 +81,12 @@ export const NewEntry = ({ token, entries, setEntries }) => {
   );
 };
 
-export const ShowEntry = ({ startDate, setUser }) => {
-  const { token, user } = useContext(MainContext);
+export const ShowEntry = ({ token, user, viewUser, startDate }) => {
   const [entries, setEntries] = useState([]);
-
-  const queryParams = new URLSearchParams(window.location.search);
-  const user_id = queryParams.get("user_id");
-
+  console.log("entries", entries);
   useEffect(() => {
-    Get("entries", { token, user_id }, (data) => {
+    Get("entries", { token, user_id: viewUser.id }, (data) => {
       setEntries(data.entries);
-
-      setUser(data.user);
     });
   }, []);
 
@@ -113,7 +106,7 @@ export const ShowEntry = ({ startDate, setUser }) => {
     return entry.created_at === convertedStartDate;
   });
 
-  if (user_id != user.id) {
+  if (viewUser.id != user.id) {
     return (
       <TextArea
         h={100}
@@ -164,15 +157,17 @@ export const ShowCalendar = ({ startDate, setStartDate }) => {
   );
 };
 
-export const Entry = () => {
+export const Entry = ({ token, user, viewUser, setShowEntry }) => {
   const [startDate, setStartDate] = useState(new Date());
-  const [user, setUser] = useState({});
 
   return (
-    <NativeBaseProvider>
-      <UserBar user={user} />
+    <>
+      <Button h={100} borderWidth={1}>
+        <UserBar user={viewUser} />
+      </Button>
+
       <ShowCalendar startDate={startDate} setStartDate={setStartDate} />
-      <ShowEntry startDate={startDate} setUser={setUser} />
-    </NativeBaseProvider>
+      <ShowEntry token={token} user={user} viewUser={viewUser} startDate={startDate} />
+    </>
   );
 };
